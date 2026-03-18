@@ -75,8 +75,9 @@
    - WBP_SnakeMenuUI
    - WBP_SnakeGameUI
    - BP_SnakeHUD
+   - BP_SnakeGameMode 设置HUD为BP_SnakeHUD
    - 地图 M_Start
-   - World Settings 中将 GameMode 设置为 SnakeGameMode
+   - World Settings 中将 GameMode 设置为 BP_SnakeGameMode
    - 在场景中放置 SnakeManager
 
    9. 构建要求
@@ -102,3 +103,8 @@
    - 碰撞逻辑正确
    - 游戏结束流程正确
    - 最高分 Top 10 可保存和读取
+   
+   
+   备忘：
+   需要创建蓝图Gamemode，设置蓝图hud
+   解决Possess后镜头不对的问题

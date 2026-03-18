@@ -108,7 +108,10 @@ private:
 	void SpawnFood();
 	void SpawnObstacle();
 	void ClearAll();
-	void SetupCamera() const;
+	void SetupCamera();
 	void DrawBoundary() const;
 	void SaveHighScore(int32 Score) const;
+
+	UPROPERTY()
+	ACameraActor* GameCamera = nullptr;
 };

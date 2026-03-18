@@ -51,6 +51,8 @@ void ASnakeManager::StartGame()
 		if (ManagedSnake)
 		{
 			PC->Possess(ManagedSnake);
+			// Re-apply fixed camera: Possess() resets the view target to the pawn
+			if (GameCamera) PC->SetViewTarget(GameCamera);
 		}
 	}
 }
@@ -255,27 +257,29 @@ void ASnakeManager::ClearAll()
 
 // ─────────────── Camera & Visuals ───────────────
 
-void ASnakeManager::SetupCamera() const
+void ASnakeManager::SetupCamera()
 {
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (!PC) return;
 
+	// Grid spans X: 0→GridWidth*CellSize, Y: 0→GridHeight*CellSize
+	// Center the camera over the grid; Yaw=-90 aligns screen-up with world+Y and screen-right with world+X
 	float CX = (GridWidth  * CellSize) * 0.5f;
 	float CY = (GridHeight * CellSize) * 0.5f;
 
 	FActorSpawnParameters Params;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	ACameraActor* Cam = GetWorld()->SpawnActor<ACameraActor>(
+	GameCamera = GetWorld()->SpawnActor<ACameraActor>(
 		ACameraActor::StaticClass(),
 		FVector(CX, CY, 2500.f),
-		FRotator(-90.f, 0.f, 0.f),
+		FRotator(-90.f, -90.f, 0.f),
 		Params);
 
-	if (Cam)
+	if (GameCamera)
 	{
-		Cam->GetCameraComponent()->ProjectionMode = ECameraProjectionMode::Orthographic;
-		Cam->GetCameraComponent()->OrthoWidth     = GridWidth * CellSize * 1.1f;
-		PC->SetViewTarget(Cam);
+		GameCamera->GetCameraComponent()->ProjectionMode = ECameraProjectionMode::Orthographic;
+		GameCamera->GetCameraComponent()->OrthoWidth     = GridWidth * CellSize * 1.1f;
+		PC->SetViewTarget(GameCamera);
 	}
 }
 
