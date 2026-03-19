@@ -61,6 +61,10 @@
    职责要求：
    - SnakeGameMode：设置默认 PlayerController 和 HUD。
    - SnakeManager：管理分数、游戏状态、生成/销毁 Snake/Food/Obstacle、随机合法位置、相机、边界可视化、存档。
+     - 在场景中添加一个 Plane 用于地面可视化，大小与 GridSize 完全一致；使用简单网格线材质，引用存储在 Plane 成员变量中，材质在蓝图子类中赋值。
+     - 相机高度与 GridSize 关联，俯视整个游戏区域，视野（FOV/OrthoWidth）略大于游戏区域边界，确保玩家能看到完整地图。
+     - 相机朝向须与玩家操作方向一致（Possess 后不得发生非预期旋转），避免 Possess 引起镇头跳变。
+     - 重新开始游戏时，须先销毁当前所有 Snake、Food、Obstacle 旧对象，再重新生成，防止残留对象干扰新局。
    - Snake：处理移动、方向、防反向、蛇身、边界环绕、碰撞、加速、隐身/无敌效果。
    - SnakePlayerController：处理输入并把方向传给 Snake。
    - SnakeHUD：创建并管理菜单 UI 和游戏 UI。
@@ -103,4 +107,17 @@
    - 碰撞逻辑正确
    - 游戏结束流程正确
    - 最高分 Top 10 可保存和读取
-   
+
+   11. 颜色材质系统
+   - 创建基础单色材质（无光照的纯颜色材质即可），在 C++ 类中声明材质引用变量，在蓝图子类中赋材质资产并按状态切换应用。
+   - 规则如下：
+     | 对象 | 状态 | 颜色 |
+     |---|---|---|
+     | SnakeObstacle | 默认 | 红色 |
+     | Food | Normal | 橙色 |
+     | Food | Invisible | 蓝色 |
+     | Food | Invincible | 紫色 |
+     | Snake | Normal | 橙色 |
+     | Snake | Invisible 效果期间 | 蓝色 |
+     | Snake | Invincible 效果期间 | 紫色 |
+   - C++ 负责切换逻辑（根据当前状态应用对应材质）；蓝图子类负责将具体材质资产赋到 C++ 成员变量。
