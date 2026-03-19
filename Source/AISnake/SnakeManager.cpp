@@ -136,15 +136,21 @@ void ASnakeManager::HandleFoodEaten(FVector2D GridPos)
 	if (ActiveFood)
 	{
 		AFood* EatenFood = ActiveFood;
-		ActiveFood = nullptr;
+		ActiveFood       = nullptr;
+		AnimatingFood    = EatenFood;  // keep reference so ClearAll can destroy it
 
 		// Bind lambda for post-animation callback
 		FOnCollectionComplete Callback;
 		Callback.BindLambda([this, EatenFood]()
 		{
+			AnimatingFood = nullptr;
 			if (IsValid(EatenFood)) EatenFood->Destroy();
-			SpawnFood();
-			SpawnObstacle();
+			// Guard: if the game was restarted while the animation was playing, do nothing
+			if (GameState == EGameState::Playing)
+			{
+				SpawnFood();
+				SpawnObstacle();
+			}
 		});
 
 		EatenFood->PlayCollectionAnimation(Callback);
@@ -242,8 +248,10 @@ void ASnakeManager::SpawnObstacle()
 
 void ASnakeManager::ClearAll()
 {
-	if (ManagedSnake) { ManagedSnake->Destroy(); ManagedSnake = nullptr; }
-	if (ActiveFood)   { ActiveFood->Destroy();   ActiveFood   = nullptr; }
+	// Destroying ManagedSnake calls ASnake::EndPlay which destroys all segments
+	if (ManagedSnake)    { ManagedSnake->Destroy();    ManagedSnake    = nullptr; }
+	if (ActiveFood)      { ActiveFood->Destroy();      ActiveFood      = nullptr; }
+	if (AnimatingFood)   { AnimatingFood->Destroy();   AnimatingFood   = nullptr; }
 
 	for (ASnakeObstacle* Obs : ActiveObstacles)
 	{

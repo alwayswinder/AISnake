@@ -97,6 +97,9 @@ private:
 	AFood* ActiveFood = nullptr;
 
 	UPROPERTY()
+	AFood* AnimatingFood = nullptr;   // food mid-collection animation; tracked so ClearAll can destroy it
+
+	UPROPERTY()
 	TArray<ASnakeObstacle*> ActiveObstacles;
 
 	// Fast-lookup sets (grid coords stored as FVector2D)

@@ -57,7 +57,18 @@ void ASnake::Initialize(ASnakeManager* Manager, FVector2D StartPos)
 	ScheduleMoveTimer(NormalMoveInterval);
 }
 
-// ─────────────── Direction ───────────────
+void ASnake::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	// Segments are independent actors; destroy them before the snake is removed
+	for (ASnakeSegment* Seg : Segments)
+	{
+		if (IsValid(Seg)) Seg->Destroy();
+	}
+	Segments.Empty();
+	Super::EndPlay(EndPlayReason);
+}
+
+
 
 void ASnake::SetDesiredDirection(FVector2D NewDir)
 {
