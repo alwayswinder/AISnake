@@ -263,7 +263,7 @@ void ASnakeManager::SetupCamera()
 	if (!PC) return;
 
 	// Grid spans X: 0→GridWidth*CellSize, Y: 0→GridHeight*CellSize
-	// Center the camera over the grid; Yaw=-90 aligns screen-up with world+Y and screen-right with world+X
+	// Center the camera over the grid; Yaw=-90 aligns screen-right with world+X and screen-up with world-Y
 	float CX = (GridWidth  * CellSize) * 0.5f;
 	float CY = (GridHeight * CellSize) * 0.5f;
 

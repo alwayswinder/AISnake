@@ -29,8 +29,9 @@ void ASnakePlayerController::SetupInputComponent()
 	InputComponent->BindAction("MoveRight", IE_Released, this, &ASnakePlayerController::OnMoveReleased);
 }
 
-void ASnakePlayerController::OnMoveUpPressed()    { HandleDirectionPressed(FVector2D( 0.f,  1.f)); }
-void ASnakePlayerController::OnMoveDownPressed()  { HandleDirectionPressed(FVector2D( 0.f, -1.f)); }
+// Camera up = world -Y, so "up on screen" means moving in -Y world direction
+void ASnakePlayerController::OnMoveUpPressed()    { HandleDirectionPressed(FVector2D( 0.f, -1.f)); }
+void ASnakePlayerController::OnMoveDownPressed()  { HandleDirectionPressed(FVector2D( 0.f,  1.f)); }
 void ASnakePlayerController::OnMoveLeftPressed()  { HandleDirectionPressed(FVector2D(-1.f,  0.f)); }
 void ASnakePlayerController::OnMoveRightPressed() { HandleDirectionPressed(FVector2D( 1.f,  0.f)); }
 
