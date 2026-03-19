@@ -2,6 +2,7 @@
 #include "SnakeManager.h"
 #include "SnakeSegment.h"
 #include "Components/StaticMeshComponent.h"
+#include "UObject/ConstructorHelpers.h"
 
 ASnake::ASnake()
 {
@@ -12,6 +13,14 @@ ASnake::ASnake()
 	HeadMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	AutoPossessPlayer = EAutoReceiveInput::Disabled;
+
+	// Pre-load colour materials (can be overridden on BP_Snake)
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MatOrange (TEXT("/Game/Materials/M_Orange"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MatBlue   (TEXT("/Game/Materials/M_Blue"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MatPurple (TEXT("/Game/Materials/M_Purple"));
+	if (MatOrange.Succeeded())  NormalMaterial     = MatOrange.Object;
+	if (MatBlue.Succeeded())    InvisibleMaterial  = MatBlue.Object;
+	if (MatPurple.Succeeded())  InvincibleMaterial = MatPurple.Object;
 }
 
 void ASnake::BeginPlay()
@@ -53,6 +62,9 @@ void ASnake::Initialize(ASnakeManager* Manager, FVector2D StartPos)
 
 	CurrentDirection = FVector2D(1.f, 0.f);
 	DirQueue.Empty();
+
+	// Apply normal material to head + all initial segments
+	ApplyMaterialToAll(NormalMaterial);
 
 	ScheduleMoveTimer(NormalMoveInterval);
 }
@@ -246,6 +258,7 @@ void ASnake::GrowBody()
 	if (Seg)
 	{
 		Seg->GridPosition = BodyPositions[TailIdx];
+		Seg->MeshComp->SetMaterial(0, GetCurrentMaterial());
 		Segments.Add(Seg);
 	}
 }
@@ -255,11 +268,13 @@ void ASnake::ApplyFoodEffect(EFoodType Type)
 	if (Type == EFoodType::Invisible)
 	{
 		bInvisible = true;
+		ApplyMaterialToAll(InvisibleMaterial);
 		GetWorldTimerManager().SetTimer(InvisTimerHandle,  this, &ASnake::EndInvisible,  10.f, false);
 	}
 	else if (Type == EFoodType::Invincible)
 	{
 		bInvincible = true;
+		ApplyMaterialToAll(InvincibleMaterial);
 		GetWorldTimerManager().SetTimer(InvincTimerHandle, this, &ASnake::EndInvincible, 10.f, false);
 	}
 }
@@ -268,6 +283,23 @@ FVector ASnake::GridToWorld(FVector2D GridPos) const
 {
 	float CellSize = ManagerRef ? ManagerRef->CellSize : 100.f;
 	return FVector(GridPos.X * CellSize, GridPos.Y * CellSize, 0.f);
+}
+
+UMaterialInterface* ASnake::GetCurrentMaterial() const
+{
+	if (bInvisible)  return InvisibleMaterial;
+	if (bInvincible) return InvincibleMaterial;
+	return NormalMaterial;
+}
+
+void ASnake::ApplyMaterialToAll(UMaterialInterface* Mat)
+{
+	if (!Mat) return;
+	HeadMesh->SetMaterial(0, Mat);
+	for (ASnakeSegment* Seg : Segments)
+	{
+		if (IsValid(Seg)) Seg->MeshComp->SetMaterial(0, Mat);
+	}
 }
 
 void ASnake::Tick(float DeltaTime)

@@ -104,11 +104,3 @@
    - 游戏结束流程正确
    - 最高分 Top 10 可保存和读取
    
-   
-   备忘：
-   需要创建蓝图BP_SnakeGameMode，设置hud为BP_SnakeHUD
-   注意开始游戏Possess后镜头不对的问题
-   SnakeManager中应该添加plane用于可视化，大小与Gridsize一致
-   镜头的朝向应与玩家的操作相符合
-   镜头高度应该与Gridsize关联，视野应比整个游戏区域稍微大一点
-   注意游戏结束后重新开始游戏，清除之前的food，Snake，和障碍物

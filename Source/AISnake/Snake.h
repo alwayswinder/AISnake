@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Food.h"
+#include "Materials/MaterialInterface.h"
 #include "Snake.generated.h"
 
 class ASnakeManager;
@@ -37,6 +38,16 @@ public:
 	// Class for spawning segment actors (set on Blueprint child)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Classes")
 	TSubclassOf<ASnakeSegment> SegmentClass;
+
+	/** State materials – assign in BP_Snake */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Materials")
+	UMaterialInterface* NormalMaterial = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Materials")
+	UMaterialInterface* InvisibleMaterial = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Materials")
+	UMaterialInterface* InvincibleMaterial = nullptr;
 
 	// Visual root mesh (head)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
@@ -75,8 +86,14 @@ private:
 	void GrowBody();
 	void ApplyFoodEffect(EFoodType Type);
 
-	void EndInvisible()  { bInvisible  = false; }
-	void EndInvincible() { bInvincible = false; }
+	/** Apply Mat to the head mesh and every body segment. */
+	void ApplyMaterialToAll(UMaterialInterface* Mat);
+
+	/** Returns the material that matches the current status effect. */
+	UMaterialInterface* GetCurrentMaterial() const;
+
+	void EndInvisible()  { bInvisible  = false; ApplyMaterialToAll(GetCurrentMaterial()); }
+	void EndInvincible() { bInvincible = false; ApplyMaterialToAll(GetCurrentMaterial()); }
 
 	FVector GridToWorld(FVector2D GridPos) const;
 };

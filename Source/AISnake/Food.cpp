@@ -1,5 +1,6 @@
 #include "Food.h"
 #include "Components/StaticMeshComponent.h"
+#include "UObject/ConstructorHelpers.h"
 
 AFood::AFood()
 {
@@ -8,6 +9,14 @@ AFood::AFood()
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	RootComponent = MeshComp;
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// Pre-load colour materials (can be overridden on BP_Food)
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MatOrange (TEXT("/Game/Materials/M_Orange"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MatBlue   (TEXT("/Game/Materials/M_Blue"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MatPurple (TEXT("/Game/Materials/M_Purple"));
+	if (MatOrange.Succeeded())  NormalMaterial     = MatOrange.Object;
+	if (MatBlue.Succeeded())    InvisibleMaterial  = MatBlue.Object;
+	if (MatPurple.Succeeded())  InvincibleMaterial = MatPurple.Object;
 }
 
 void AFood::Tick(float DeltaTime)
@@ -48,4 +57,16 @@ EFoodType AFood::GetRandomFoodType()
 	if (Rand < 0.70f) return EFoodType::Normal;
 	if (Rand < 0.80f) return EFoodType::Invisible;  // 70-80 → 10%
 	return EFoodType::Invincible;                    // 80-100 → 20%
+}
+
+void AFood::ApplyMaterial()
+{
+	UMaterialInterface* Mat = nullptr;
+	switch (FoodType)
+	{
+		case EFoodType::Normal:     Mat = NormalMaterial;     break;
+		case EFoodType::Invisible:  Mat = InvisibleMaterial;  break;
+		case EFoodType::Invincible: Mat = InvincibleMaterial; break;
+	}
+	if (Mat) MeshComp->SetMaterial(0, Mat);
 }

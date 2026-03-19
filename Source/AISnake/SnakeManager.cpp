@@ -222,6 +222,7 @@ void ASnakeManager::SpawnFood()
 	{
 		NewFood->FoodType    = AFood::GetRandomFoodType();
 		NewFood->GridPosition = SpawnPos;
+		NewFood->ApplyMaterial();
 		ActiveFood           = NewFood;
 		FoodCells.Add(SpawnPos, NewFood);
 	}

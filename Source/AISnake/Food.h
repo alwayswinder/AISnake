@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Materials/MaterialInterface.h"
 #include "Food.generated.h"
 
 UENUM(BlueprintType)
@@ -29,6 +30,19 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Food")
 	EFoodType FoodType = EFoodType::Normal;
+
+	/** Per-type materials – assign in BP_Food */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Materials")
+	UMaterialInterface* NormalMaterial = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Materials")
+	UMaterialInterface* InvisibleMaterial = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Materials")
+	UMaterialInterface* InvincibleMaterial = nullptr;
+
+	/** Apply the material that matches the current FoodType. Call after FoodType is set. */
+	void ApplyMaterial();
 
 	FVector2D GridPosition;
 
