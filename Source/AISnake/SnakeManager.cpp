@@ -267,18 +267,32 @@ void ASnakeManager::SetupCamera()
 	float CX = (GridWidth  * CellSize) * 0.5f;
 	float CY = (GridHeight * CellSize) * 0.5f;
 
+	// Z must be above all grid actors; scale with grid size so it's always valid
+	float CameraZ = FMath::Max(GridWidth, GridHeight) * CellSize * 2.0f;
+
 	FActorSpawnParameters Params;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	GameCamera = GetWorld()->SpawnActor<ACameraActor>(
 		ACameraActor::StaticClass(),
-		FVector(CX, CY, 2500.f),
+		FVector(CX, CY, CameraZ),
 		FRotator(-90.f, -90.f, 0.f),
 		Params);
 
 	if (GameCamera)
 	{
+		// Derive aspect ratio from the viewport so neither axis clips the grid
+		int32 VX = 0, VY = 0;
+		PC->GetViewportSize(VX, VY);
+		const float AspectRatio = (VY > 0) ? static_cast<float>(VX) / static_cast<float>(VY) : 16.f / 9.f;
+
+		const float GridWorldW = GridWidth  * CellSize;
+		const float GridWorldH = GridHeight * CellSize;
+		// OrthoWidth controls horizontal extent; vertical extent = OrthoWidth / AspectRatio
+		// Take whichever dimension is the limiting factor, then add 10 % margin
+		const float OrthoWidth = FMath::Max(GridWorldW, GridWorldH * AspectRatio) * 1.1f;
+
 		GameCamera->GetCameraComponent()->ProjectionMode = ECameraProjectionMode::Orthographic;
-		GameCamera->GetCameraComponent()->OrthoWidth     = GridWidth * CellSize * 1.1f;
+		GameCamera->GetCameraComponent()->OrthoWidth     = OrthoWidth;
 		PC->SetViewTarget(GameCamera);
 	}
 }

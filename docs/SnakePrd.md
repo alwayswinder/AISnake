@@ -106,5 +106,8 @@
    
    
    备忘：
-   需要创建蓝图Gamemode，设置蓝图hud
-   解决Possess后镜头不对的问题
+   需要创建蓝图BP_SnakeGameMode，设置蓝图hud
+   注意开始游戏Possess后镜头不对的问题
+   SnakeManager中应该添加plane用于可视化，大小与Gridsize一致
+   镜头的朝向应与玩家的操作相符合
+   镜头高度应该与Gridsize关联，保证可以看到整个游戏区域
