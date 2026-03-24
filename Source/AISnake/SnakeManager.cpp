@@ -314,10 +314,14 @@ void ASnakeManager::DrawBoundary() const
 	float Duration  = 1e8f; // persistent
 	FColor Color = FColor::White;
 
-	DrawDebugLine(GetWorld(), FVector(0,  0,  1), FVector(W, 0,  1), Color, true, Duration, 0, Thickness);
-	DrawDebugLine(GetWorld(), FVector(W, 0,  1), FVector(W, H,  1), Color, true, Duration, 0, Thickness);
-	DrawDebugLine(GetWorld(), FVector(W, H,  1), FVector(0,  H,  1), Color, true, Duration, 0, Thickness);
-	DrawDebugLine(GetWorld(), FVector(0,  H,  1), FVector(0,  0,  1), Color, true, Duration, 0, Thickness);
+	// Grid cells are center-placed, so visual grid spans [-CellSize/2, H - CellSize/2].
+	float YMin = -CellSize * 0.5f;
+	float YMax = H - CellSize * 0.5f;
+
+	DrawDebugLine(GetWorld(), FVector(0, YMin, 1), FVector(W, YMin, 1), Color, true, Duration, 0, Thickness);
+	DrawDebugLine(GetWorld(), FVector(W, YMin, 1), FVector(W, YMax, 1), Color, true, Duration, 0, Thickness);
+	DrawDebugLine(GetWorld(), FVector(W, YMax, 1), FVector(0, YMax, 1), Color, true, Duration, 0, Thickness);
+	DrawDebugLine(GetWorld(), FVector(0, YMax, 1), FVector(0, YMin, 1), Color, true, Duration, 0, Thickness);
 }
 
 // ─────────────── Save / Load ───────────────
